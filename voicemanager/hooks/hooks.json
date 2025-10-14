@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "say '다음 작업을 확인해주세요'"
+          }
+        ]
+      }
+    ]
+  }
+}

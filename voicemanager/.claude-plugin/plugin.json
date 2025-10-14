@@ -1,0 +1,8 @@
+{
+  "name": "voicemanager",
+  "description": "tell user when needs input",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  }
+}
