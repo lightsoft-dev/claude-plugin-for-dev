@@ -12,7 +12,10 @@ You are starting a new feature development workflow with Notion tracking.
 Ask the user for:
 - **Feature name**: What feature are you building?
 - **Description**: Brief description of the feature
-- **Notion Database ID**: The database ID where you want to track this (or use a default if configured)
+
+**Note**: The Notion Database ID is read from `.mcp.json` configuration file (`featureTracker.defaultDatabaseId`).
+- If the database ID is not configured or is "YOUR_DATABASE_ID_HERE", ask the user to provide it and inform them they can set it in `.mcp.json` to avoid entering it every time.
+- If configured, use the default database ID without asking the user.
 
 ### 2. Create Git Branch
 - Create a new branch with format: `feature/[feature-name-kebab-case]`
@@ -25,10 +28,15 @@ Use the Notion MCP tools to:
 - Set the following properties:
   - **Feature Name**: [user provided name]
   - **Status**: "작업중" (In Progress)
-  - **Start Time**: Current timestamp (use `now()`)
+  - **Start Time**: Current timestamp in ISO 8601 format (e.g., "2025-10-20T17:30:00+09:00" or use JavaScript `new Date().toISOString()`)
   - **Branch**: The git branch name you created
   - **Description**: [user provided description]
 - Save the page ID for later reference
+
+**Important**: For the Start Time property, you must use the proper format for Notion date properties:
+- Use `date:Start Time:start` for the property name
+- Use `date:Start Time:is_datetime` and set it to 1 for datetime
+- Provide the current timestamp in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
 
 ### 4. Initialize Todo List
 Use the TodoWrite tool to create an initial task breakdown:

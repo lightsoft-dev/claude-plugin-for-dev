@@ -40,7 +40,10 @@ Ask the user for:
 ### 5. Update Notion Tracker
 Use Notion MCP tools to update the tracker page:
 - **Status**: Change to "완료됨" (Completed)
-- **End Time**: Current timestamp (use `now()`)
+- **End Time**: Current timestamp in ISO 8601 format (use JavaScript `new Date().toISOString()`)
+  - Use `date:End Time:start` for the property name
+  - Use `date:End Time:is_datetime` and set it to 1 for datetime
+  - Provide the current timestamp in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
 - **PR URL**: Add the pull request URL
 - **Duration**: Will auto-calculate based on Start Time and End Time
 

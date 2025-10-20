@@ -4,5 +4,9 @@
       "type": "http",
       "url": "https://mcp.notion.com/mcp"
     }
+  },
+  "featureTracker": {
+    "defaultDatabaseId": "YOUR_DATABASE_ID_HERE",
+    "comment": "Replace YOUR_DATABASE_ID_HERE with your actual Notion database ID"
   }
 }
