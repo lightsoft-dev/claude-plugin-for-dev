@@ -1,0 +1,8 @@
+{
+  "name": "project-initializer",
+  "description": "Interactive project setup command for various tech stacks",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  }
+}

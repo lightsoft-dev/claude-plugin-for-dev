@@ -18,6 +18,11 @@
       "name": "feature-tracker",
       "source": "./feature-tracker",
       "description": "track feature development with Notion"
+    },
+    {
+      "name": "project-initializer",
+      "source": "./project-initializer",
+      "description": "interactive project setup for various tech stacks"
     }
   ]
 }
