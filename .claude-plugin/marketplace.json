@@ -23,6 +23,16 @@
       "name": "project-initializer",
       "source": "./project-initializer",
       "description": "interactive project setup for various tech stacks"
+    },
+    {
+      "name": "project-cleaner",
+      "source": "./project-cleaner",
+      "description": "smart cleanup for deployment - removes unused backups and packages"
+    },
+    {
+      "name": "test-generator",
+      "source": "./test-generator",
+      "description": "automatically generate and run tests with detailed reports"
     }
   ]
 }

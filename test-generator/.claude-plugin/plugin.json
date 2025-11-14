@@ -1,0 +1,8 @@
+{
+  "name": "test-generator",
+  "description": "Automatically generate and run tests with detailed reports",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  }
+}

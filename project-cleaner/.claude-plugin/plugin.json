@@ -1,0 +1,8 @@
+{
+  "name": "project-cleaner",
+  "description": "Smart file cleanup before deployment - removes unused backups and packages",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  }
+}
