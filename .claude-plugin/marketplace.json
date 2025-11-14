@@ -33,6 +33,11 @@
       "name": "test-generator",
       "source": "./test-generator",
       "description": "automatically generate and run tests with detailed reports"
+    },
+    {
+      "name": "security-checker",
+      "source": "./security-checker",
+      "description": "comprehensive security scanning for secrets, vulnerabilities, and code issues"
     }
   ]
 }

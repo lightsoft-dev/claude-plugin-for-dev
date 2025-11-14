@@ -1,0 +1,8 @@
+{
+  "name": "security-checker",
+  "description": "Comprehensive security scanning for secrets, vulnerabilities, and code issues",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  }
+}
