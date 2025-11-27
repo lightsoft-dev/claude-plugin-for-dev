@@ -1,0 +1,9 @@
+{
+  "name": "figma-responsive-skill",
+  "description": "Figma MCP를 활용한 반응형 코드 자동 변환 플러그인. 단일 커맨드로 Figma 디자인을 멀티 디바이스 반응형 코드로 변환하고, Gemini AI로 디자인 비교 및 자동 수정까지 지원.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  },
+  "keywords": ["figma", "responsive", "mcp", "gemini", "react-native", "expo", "nextjs"]
+}
