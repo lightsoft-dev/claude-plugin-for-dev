@@ -2,6 +2,160 @@
 
 Figma 디자인 요소를 React Native / Web 코드로 변환하는 규칙입니다.
 
+## iOS 시스템 UI 요소 제거
+
+앱 개발 시 불필요한 iOS 시스템 UI 요소를 자동으로 식별하고 제거합니다.
+
+### 제거 대상 요소
+
+#### 1. 상단 상태바 (Status Bar)
+
+iPhone의 시간, 배터리, 신호 강도 등을 표시하는 영역.
+
+**식별 기준:**
+- 노드 이름에 다음 키워드 포함 (대소문자 무시):
+  - `status bar`, `statusbar`, `status-bar`
+  - `time`, `battery`, `signal`, `carrier`
+  - `notch`, `dynamic island`
+- 위치: 화면 최상단 (y = 0 또는 y < 60)
+- 크기 범위:
+  - 높이: 44px ~ 59px (노치/다이나믹 아일랜드 기기)
+  - 높이: 20px ~ 24px (구형 기기)
+  - 너비: 화면 전체 (90% 이상)
+
+**일반적인 Figma 이름 패턴:**
+```
+Status Bar
+Status bar
+status-bar
+iPhone Status Bar
+iOS Status Bar
+Time / Battery / Signal
+Notch
+Dynamic Island
+```
+
+#### 2. 하단 홈 인디케이터 (Home Indicator)
+
+iPhone X 이후 기기의 하단 홈 바.
+
+**식별 기준:**
+- 노드 이름에 다음 키워드 포함 (대소문자 무시):
+  - `home indicator`, `homeindicator`, `home-indicator`
+  - `home bar`, `homebar`, `home-bar`
+  - `bottom bar`, `swipe bar`
+  - `indicator bar`
+- 위치: 화면 최하단 (부모 높이 - y < 40)
+- 크기 범위:
+  - 높이: 5px ~ 8px
+  - 너비: 130px ~ 140px (중앙 정렬)
+  - 또는 영역 높이: 34px (Safe Area)
+
+**일반적인 Figma 이름 패턴:**
+```
+Home Indicator
+home indicator
+Home Bar
+Bottom Indicator
+iPhone Home Indicator
+Safe Area - Bottom
+```
+
+### 제거 로직
+
+```typescript
+interface FigmaNode {
+  name: string;
+  absoluteBoundingBox: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  parent?: FigmaNode;
+}
+
+// iOS 시스템 UI 요소 감지
+const isIOSSystemElement = (node: FigmaNode, screenHeight: number): boolean => {
+  const name = node.name.toLowerCase();
+  const { y, height, width } = node.absoluteBoundingBox;
+
+  // 1. 상태바 키워드 검사
+  const statusBarKeywords = [
+    'status bar', 'statusbar', 'status-bar',
+    'battery', 'signal', 'carrier', 'time',
+    'notch', 'dynamic island'
+  ];
+
+  const isStatusBarByName = statusBarKeywords.some(kw => name.includes(kw));
+  const isStatusBarByPosition = y < 60 && height >= 20 && height <= 59;
+
+  if (isStatusBarByName || (isStatusBarByPosition && width > 350)) {
+    return true;
+  }
+
+  // 2. 홈 인디케이터 키워드 검사
+  const homeIndicatorKeywords = [
+    'home indicator', 'homeindicator', 'home-indicator',
+    'home bar', 'homebar', 'home-bar',
+    'bottom indicator', 'swipe bar', 'indicator bar'
+  ];
+
+  const isHomeIndicatorByName = homeIndicatorKeywords.some(kw => name.includes(kw));
+  const bottomPosition = screenHeight - (y + height);
+  const isHomeIndicatorByPosition = bottomPosition < 40 && height <= 40;
+
+  if (isHomeIndicatorByName || isHomeIndicatorByPosition) {
+    // 홈 인디케이터 바 자체 (작은 바)
+    if (height >= 5 && height <= 8 && width >= 100 && width <= 150) {
+      return true;
+    }
+    // Safe Area 영역 (34px 높이)
+    if (height >= 30 && height <= 40 && isHomeIndicatorByName) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+// 노드 필터링
+const filterIOSSystemElements = (
+  nodes: FigmaNode[],
+  screenHeight: number
+): FigmaNode[] => {
+  return nodes.filter(node => !isIOSSystemElement(node, screenHeight));
+};
+```
+
+### 변환 시 처리 방법
+
+1. **완전 제거**: 상태바/홈 인디케이터 노드는 코드로 변환하지 않음
+2. **SafeAreaView 사용**: React Native에서는 SafeAreaView로 자동 대체
+3. **레이아웃 조정**: 제거된 영역만큼 레이아웃 위치 조정
+
+```tsx
+// React Native 변환 예시
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const Screen = () => {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      {/* 변환된 콘텐츠 (상태바/홈 인디케이터 제외) */}
+    </SafeAreaView>
+  );
+};
+```
+
+### 로그 출력
+
+시스템 UI 요소 제거 시 로그 출력:
+
+```
+[iOS System UI] 제거됨: "Status Bar" (44px, 상단)
+[iOS System UI] 제거됨: "Home Indicator" (34px, 하단)
+```
+
 ## 노드 타입 매핑
 
 ### React Native

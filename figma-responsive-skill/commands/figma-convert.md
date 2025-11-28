@@ -159,18 +159,34 @@ Task 2:
 1. Figma MCP 호출하여 노드 데이터 가져오기:
    - `mcp__figma__get_file` 또는 관련 MCP 도구 사용
 
-2. 노드 분석 및 컴포넌트 생성:
+2. **iOS 시스템 UI 요소 자동 제거**:
+   - `references/figma-mapping.md`의 "iOS 시스템 UI 요소 제거" 섹션 참조
+   - 상단 상태바 (Status Bar) 감지 및 제거:
+     - 키워드: `status bar`, `battery`, `signal`, `time`, `notch`, `dynamic island`
+     - 위치: y < 60, 높이 20~59px
+   - 하단 홈 인디케이터 (Home Indicator) 감지 및 제거:
+     - 키워드: `home indicator`, `home bar`, `bottom indicator`
+     - 위치: 화면 하단 40px 이내
+   - 제거된 요소 로그 출력:
+     ```
+     [iOS System UI] 제거됨: "Status Bar" (44px, 상단)
+     [iOS System UI] 제거됨: "Home Indicator" (34px, 하단)
+     ```
+   - React Native: `SafeAreaView`로 자동 래핑
+
+3. 노드 분석 및 컴포넌트 생성:
    - `references/figma-mapping.md` 참조하여 Figma 요소 → React 컴포넌트 변환
    - 반응형 유틸리티 적용 (scaleWidth, scaleFont, scaleSpacing 등)
 
-3. SVG 아이콘 추출:
+4. SVG 아이콘 추출:
    - 아이콘 노드 탐지 (이름에 "icon", "Icon", "svg" 포함)
    - `assets/icons/` 폴더에 SVG 파일 저장
    - `assets/icons/index.ts` 생성
 
-4. 결과 반환:
+5. 결과 반환:
    - 생성된 파일 경로들
    - 추출된 아이콘 목록
+   - 제거된 iOS 시스템 UI 요소 목록
    - 변환 로그
 
 ### 8. 결과 취합
