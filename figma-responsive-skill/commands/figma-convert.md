@@ -233,14 +233,28 @@ Task 2:
    - `references/figma-mapping.md` 참조하여 Figma 요소 → React 컴포넌트 변환
    - 반응형 유틸리티 적용 (scaleWidth, scaleFont, scaleSpacing 등)
 
-4. SVG 아이콘 추출:
-   - 아이콘 노드 탐지 (이름에 "icon", "Icon", "svg" 포함)
-   - `assets/icons/` 폴더에 SVG 파일 저장
-   - `assets/icons/index.ts` 생성
+4. 이미지/아이콘 추출 (100% 중복이 아니면 모두 저장):
+   - **아이콘**: 이름에 "icon", "Icon", "svg" 포함 → `assets/icons/`에 SVG로 저장
+   - **마스코트/일러스트**: 이름에 "mascot", "character", "illustration" 포함 → `assets/images/`에 PNG로 저장
+   - **일반 이미지**: IMAGE 타입 노드 → `assets/images/`에 PNG로 저장
+   - **중복 체크**: 파일명 + 해시값으로 100% 동일한 경우만 제외, 나머지는 모두 저장
+   - `assets/icons/index.ts` 및 `assets/images/index.ts` 생성
+
+   **Figma API로 이미지 export:**
+   ```bash
+   # SVG export (아이콘용)
+   curl -H "X-Figma-Token: $FIGMA_API_TOKEN" \
+     "https://api.figma.com/v1/images/{file_key}?ids={node_id}&format=svg"
+
+   # PNG export (이미지/마스코트용)
+   curl -H "X-Figma-Token: $FIGMA_API_TOKEN" \
+     "https://api.figma.com/v1/images/{file_key}?ids={node_id}&format=png&scale=2"
+   ```
 
 5. 결과 반환:
    - 생성된 파일 경로들
    - 추출된 아이콘 목록
+   - 추출된 이미지/마스코트 목록
    - 제거된 iOS 시스템 UI 요소 목록
    - 변환 로그
 
