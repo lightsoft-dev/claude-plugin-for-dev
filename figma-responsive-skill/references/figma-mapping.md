@@ -186,6 +186,69 @@ const Screen = () => {
 | COMPONENT | 커스텀 컴포넌트 |
 | INSTANCE | 컴포넌트 사용 |
 
+## 스케일링 함수 사용 규칙 (중요!)
+
+### 핵심 원칙
+
+**Figma 디자인 값보다 항상 크게 적용:**
+- **폰트 크기**: Figma 값 + 2~3px → `scaleFont(figmaValue + 2)` 또는 `scaleFont(figmaValue + 3)`
+- **마진/패딩**: Figma 값 + 4~6px
+  - 가로 여백 (left, right, horizontal) → `scaleWidth(figmaValue + 5)`
+  - 세로 여백 (top, bottom, vertical) → `scaleHeight(figmaValue + 5)`
+- **이미지/요소 크기**:
+  - 너비 → `scaleWidth(figmaValue)`
+  - 높이 → `scaleHeight(figmaValue)`
+
+### 함수별 사용 용도
+
+| 함수 | 용도 | 예시 |
+|------|------|------|
+| `scaleWidth(n)` | 너비, 가로 마진/패딩, 가로 간격 | `width`, `marginLeft`, `paddingRight`, `gap` (가로) |
+| `scaleHeight(n)` | 높이, 세로 마진/패딩, 세로 간격 | `height`, `marginTop`, `paddingBottom`, `gap` (세로) |
+| `scaleFont(n)` | 폰트 크기 전용 (항상 +2~3px 추가) | `fontSize` |
+
+### 올바른 사용 예시
+
+```typescript
+// Figma 값: fontSize: 14, padding: 16, margin: 12, width: 200, height: 100
+
+// ✅ 올바른 변환
+const styles = StyleSheet.create({
+  container: {
+    width: scaleWidth(200),           // 너비 → scaleWidth
+    height: scaleHeight(100),         // 높이 → scaleHeight
+    paddingLeft: scaleWidth(16 + 5),  // 가로 패딩 → scaleWidth + 5px
+    paddingRight: scaleWidth(16 + 5), // 가로 패딩 → scaleWidth + 5px
+    paddingTop: scaleHeight(16 + 5),  // 세로 패딩 → scaleHeight + 5px
+    paddingBottom: scaleHeight(16 + 5), // 세로 패딩 → scaleHeight + 5px
+    marginLeft: scaleWidth(12 + 5),   // 가로 마진 → scaleWidth + 5px
+    marginTop: scaleHeight(12 + 5),   // 세로 마진 → scaleHeight + 5px
+  },
+  text: {
+    fontSize: scaleFont(14 + 2),      // 폰트 → scaleFont + 2~3px
+  },
+});
+
+// ❌ 잘못된 변환 (하지 마세요)
+const wrongStyles = {
+  paddingHorizontal: scaleSpacing(16), // scaleSpacing 사용 금지
+  marginTop: scaleWidth(12),           // 세로에 scaleWidth 사용 금지
+  fontSize: scaleWidth(14),            // 폰트에 scaleWidth 사용 금지
+};
+```
+
+### 간격(Gap) 방향별 적용
+
+```typescript
+// Figma: itemSpacing: 12 (flexDirection에 따라 다름)
+
+// flexDirection: 'row' (가로 배치) → 가로 간격
+gap: scaleWidth(12 + 5),
+
+// flexDirection: 'column' (세로 배치) → 세로 간격
+gap: scaleHeight(12 + 5),
+```
+
 ## 크기 변환
 
 ### 기본 규칙
@@ -195,7 +258,7 @@ const Screen = () => {
 width: 300
 height: 200
 
-// React Native (반응형)
+// React Native (반응형) - 각각 해당 함수 사용
 width: scaleWidth(300),
 height: scaleHeight(200),
 
@@ -247,8 +310,12 @@ width: scaleWidth(300),
 // Figma
 itemSpacing: 16
 
-// React Native
-gap: scaleSpacing(16),
+// React Native - flexDirection에 따라 다름
+// flexDirection: 'row' (가로 배치)
+gap: scaleWidth(16 + 5),  // 가로 간격 → scaleWidth + 5px
+
+// flexDirection: 'column' (세로 배치)
+gap: scaleHeight(16 + 5), // 세로 간격 → scaleHeight + 5px
 
 // Web
 gap: fluidSpacing(16),
@@ -263,9 +330,11 @@ paddingRight: 24
 paddingTop: 16
 paddingBottom: 16
 
-// React Native
-paddingHorizontal: scaleSpacing(24),
-paddingVertical: scaleSpacing(16),
+// React Native - 가로/세로 구분하여 적용 (+5px)
+paddingLeft: scaleWidth(24 + 5),   // 가로 → scaleWidth
+paddingRight: scaleWidth(24 + 5),  // 가로 → scaleWidth
+paddingTop: scaleHeight(16 + 5),   // 세로 → scaleHeight
+paddingBottom: scaleHeight(16 + 5), // 세로 → scaleHeight
 
 // Web
 padding: `${fluidSpacing(16)} ${fluidSpacing(24)}`,
@@ -279,12 +348,14 @@ padding: `${fluidSpacing(16)} ${fluidSpacing(24)}`,
 // Figma
 fontSize: 16
 
-// React Native (태블릿/PC에서 +2px)
-fontSize: scaleFont(16),
+// React Native - 항상 Figma 값 + 2~3px 추가
+fontSize: scaleFont(16 + 2),  // 16 → 18로 변환
 
 // Web
-fontSize: fluidFont(16),
+fontSize: fluidFont(16 + 2),
 ```
+
+**중요**: 폰트는 항상 Figma 원본보다 2~3px 크게 적용합니다.
 
 ### 폰트 굵기
 
