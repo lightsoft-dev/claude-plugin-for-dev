@@ -8,6 +8,31 @@ Figma MCP를 활용하여 디자인을 반응형 코드로 자동 변환합니�
 
 ## Steps to follow:
 
+### 0. 환경 변수 로드 (필수)
+
+Bash 도구로 아래 명령을 실행하여 환경 변수를 설정하세요:
+
+```bash
+# .env 파일 자동 탐색 및 로드
+for env_path in ".env" "../.env" "../../.env" "$HOME/.claude/.env"; do
+  if [ -f "$env_path" ]; then
+    set -a && source "$env_path" && set +a
+    echo "Loaded: $env_path"
+    break
+  fi
+done
+
+# 환경 변수 확인
+echo "GEMINI_API_KEY: ${GEMINI_API_KEY:0:10}..."
+echo "FIGMA_API_TOKEN: ${FIGMA_API_TOKEN:0:10}..."
+```
+
+**필요한 환경 변수:**
+- `GEMINI_API_KEY` - Gemini 디자인 비교용
+- `FIGMA_API_TOKEN` - Figma 이미지 export용 (MCP 대안)
+
+환경 변수가 출력되지 않으면 프로젝트 루트에 `.env` 파일을 생성하세요.
+
 ### 1. 버전 선택 (다중 선택 가능)
 
 AskUserQuestion 도구를 사용하여 사용자에게 구현할 버전을 질문하세요:
