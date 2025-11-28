@@ -8,30 +8,50 @@ Figma MCP를 활용하여 디자인을 반응형 코드로 자동 변환합니�
 
 ## Steps to follow:
 
-### 0. 환경 변수 로드 (필수)
+### 0. 환경 변수 로드 (필수 - 반드시 실행!)
 
-Bash 도구로 아래 명령을 실행하여 환경 변수를 설정하세요:
+**중요: 이 단계를 건너뛰면 Gemini 비교가 작동하지 않습니다!**
+
+Bash 도구로 아래 명령을 **반드시** 실행하세요:
 
 ```bash
-# .env 파일 자동 탐색 및 로드
-for env_path in ".env" "../.env" "../../.env" "$HOME/.claude/.env"; do
+# 플러그인 폴더 및 프로젝트의 .env 파일 로드
+ENV_PATHS=(
+  "$HOME/Desktop/claude-plugin-for-dev/figma-responsive-skill/.env"
+  ".env"
+  "../.env"
+  "../../.env"
+)
+
+for env_path in "${ENV_PATHS[@]}"; do
   if [ -f "$env_path" ]; then
-    set -a && source "$env_path" && set +a
-    echo "Loaded: $env_path"
+    export $(grep -v '^#' "$env_path" | grep -v '^$' | xargs)
+    echo "✅ Loaded: $env_path"
     break
   fi
 done
 
-# 환경 변수 확인
-echo "GEMINI_API_KEY: ${GEMINI_API_KEY:0:10}..."
-echo "FIGMA_API_TOKEN: ${FIGMA_API_TOKEN:0:10}..."
+# 환경 변수 확인 (반드시 출력되어야 함!)
+if [ -n "$GEMINI_API_KEY" ]; then
+  echo "✅ GEMINI_API_KEY: ${GEMINI_API_KEY:0:15}..."
+else
+  echo "❌ GEMINI_API_KEY not found!"
+fi
+
+if [ -n "$FIGMA_API_TOKEN" ]; then
+  echo "✅ FIGMA_API_TOKEN: ${FIGMA_API_TOKEN:0:15}..."
+else
+  echo "❌ FIGMA_API_TOKEN not found!"
+fi
 ```
 
-**필요한 환경 변수:**
-- `GEMINI_API_KEY` - Gemini 디자인 비교용
-- `FIGMA_API_TOKEN` - Figma 이미지 export용 (MCP 대안)
-
-환경 변수가 출력되지 않으면 프로젝트 루트에 `.env` 파일을 생성하세요.
+**환경 변수가 ❌로 표시되면:**
+1. 플러그인 폴더에 `.env` 파일이 있는지 확인
+2. 또는 현재 프로젝트 루트에 `.env` 파일 생성:
+```
+GEMINI_API_KEY="your-api-key"
+FIGMA_API_TOKEN="your-figma-token"
+```
 
 ### 1. 버전 선택 및 px 범위 설정
 
