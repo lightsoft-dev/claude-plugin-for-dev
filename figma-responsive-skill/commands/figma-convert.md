@@ -253,23 +253,43 @@ Task 2:
    - `references/figma-mapping.md` 참조하여 Figma 요소 → React 컴포넌트 변환
    - 반응형 유틸리티 적용 (scaleWidth, scaleFont, scaleSpacing 등)
 
-4. 이미지/아이콘 추출 (100% 중복이 아니면 모두 저장):
-   - **아이콘**: 이름에 "icon", "Icon", "svg" 포함 → `assets/icons/`에 SVG로 저장
-   - **마스코트/일러스트**: 이름에 "mascot", "character", "illustration" 포함 → `assets/images/`에 PNG로 저장
-   - **일반 이미지**: IMAGE 타입 노드 → `assets/images/`에 PNG로 저장
-   - **중복 체크**: 파일명 + 해시값으로 100% 동일한 경우만 제외, 나머지는 모두 저장
-   - `assets/icons/index.ts` 및 `assets/images/index.ts` 생성
+4. **이미지/아이콘은 반드시 Figma에서 다운로드 (절대 직접 생성 금지!)**:
 
-   **Figma API로 이미지 export:**
+   **⚠️ 중요: 이미지/아이콘을 절대로 직접 코드로 작성하지 마세요!**
+   **⚠️ 반드시 Figma API를 통해 실제 이미지를 다운로드해야 합니다!**
+
+   **Step 4-1. Figma에서 이미지 노드 ID 수집:**
+   - VECTOR, IMAGE, FRAME(아이콘/이미지 포함) 노드의 ID 수집
+   - 마스코트, 캐릭터, 일러스트, 아이콘 등 모든 그래픽 요소 포함
+
+   **Step 4-2. Figma API로 이미지 URL 요청:**
    ```bash
-   # SVG export (아이콘용)
-   curl -H "X-Figma-Token: $FIGMA_API_TOKEN" \
-     "https://api.figma.com/v1/images/{file_key}?ids={node_id}&format=svg"
+   # 여러 노드를 한 번에 요청 (쉼표로 구분)
+   NODE_IDS="1:234,5:678,9:012"
 
-   # PNG export (이미지/마스코트용)
-   curl -H "X-Figma-Token: $FIGMA_API_TOKEN" \
-     "https://api.figma.com/v1/images/{file_key}?ids={node_id}&format=png&scale=2"
+   # SVG export (아이콘/벡터용)
+   curl -s -H "X-Figma-Token: $FIGMA_API_TOKEN" \
+     "https://api.figma.com/v1/images/${FILE_KEY}?ids=${NODE_IDS}&format=svg" \
+     | jq -r '.images'
+
+   # PNG export (마스코트/이미지용, 2배 해상도)
+   curl -s -H "X-Figma-Token: $FIGMA_API_TOKEN" \
+     "https://api.figma.com/v1/images/${FILE_KEY}?ids=${NODE_IDS}&format=png&scale=2" \
+     | jq -r '.images'
    ```
+
+   **Step 4-3. 이미지 다운로드 및 저장:**
+   ```bash
+   # 응답에서 받은 URL로 실제 이미지 다운로드
+   curl -s -o "assets/images/mascot.png" "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/..."
+   curl -s -o "assets/icons/check.svg" "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/..."
+   ```
+
+   **저장 위치:**
+   - 아이콘 (SVG) → `assets/icons/`
+   - 마스코트/캐릭터/이미지 (PNG) → `assets/images/`
+   - 100% 동일 파일만 중복 제외, 나머지는 모두 저장
+   - `assets/icons/index.ts` 및 `assets/images/index.ts` 생성
 
 5. 결과 반환:
    - 생성된 파일 경로들
@@ -286,7 +306,10 @@ Task 2:
 2. 중복 아이콘 제거 및 통합
 3. 공통 컴포넌트 식별
 
-### 8. Gemini 디자인 비교 및 자동 수정 (5차 반복)
+### 8. Gemini 디자인 비교 및 자동 수정 (5차 반복) - 필수 실행!
+
+**⚠️ 이 단계는 반드시 실행해야 합니다! 건너뛰지 마세요!**
+**⚠️ GEMINI_API_KEY가 없다고 건너뛰지 말고, Step 0에서 환경변수를 로드했는지 다시 확인하세요!**
 
 **왜 앱 스크린샷을 캡처하는가?**
 - Figma 디자인 이미지 = "목표" (원본 디자인)
