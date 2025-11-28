@@ -306,15 +306,20 @@ Task 2:
 2. 중복 아이콘 제거 및 통합
 3. 공통 컴포넌트 식별
 
-### 8. Gemini 디자인 비교 및 자동 수정 (5차 반복) - 필수 실행!
+### 8. Gemini 검증 (필수!) - 이미지 & 레이아웃 확인
 
-**⚠️ 이 단계는 반드시 실행해야 합니다! 건너뛰지 마세요!**
-**⚠️ GEMINI_API_KEY가 없다고 건너뛰지 말고, Step 0에서 환경변수를 로드했는지 다시 확인하세요!**
+**⚠️ 이 단계는 반드시 실행해야 합니다!**
+**⚠️ GEMINI_API_KEY가 없으면 Step 0으로 돌아가서 환경변수 다시 로드!**
 
-**왜 앱 스크린샷을 캡처하는가?**
-- Figma 디자인 이미지 = "목표" (원본 디자인)
-- 실행 중인 앱 스크린샷 = "현재 상태" (개발 결과물)
-- 두 이미지를 비교하여 디자인과 개발 결과의 차이점을 파악하고 자동 수정
+**Gemini의 역할 (UI 생성 X, 검증만 O):**
+- Claude Code가 UI 코드는 이미 잘 생성함
+- Gemini는 **검증만** 담당:
+  1. **이미지 검증**: Figma의 마스코트/아이콘이 앱에 제대로 들어갔는지
+  2. **레이아웃 검증**: 요소들이 Figma와 동일한 위치에 있는지
+
+**비교 대상:**
+- Figma 디자인 이미지 (원본)
+- 실행 중인 앱 스크린샷 (결과물)
 
 **비교 프로세스 (최대 5차 반복):**
 
@@ -366,48 +371,60 @@ npx puppeteer screenshot http://localhost:3000 \
 3. 30초 대기 후 재시도 (최대 3회)
 4. 그래도 실패하면 Gemini 비교 건너뛰고 계속 진행 (사용자에게 물어보지 않음)
 
-#### Step 8-3. Gemini 비교 분석
+#### Step 8-3. Gemini 검증 분석
 
 ```bash
 GEMINI_API_KEY="$GEMINI_API_KEY" gemini -m gemini-2.5-flash \
   --image /tmp/figma-design.png \
   --image /tmp/app-screenshot.png \
-  "두 이미지를 비교하세요. 첫 번째는 Figma 원본 디자인, 두 번째는 개발된 앱 화면입니다.
+  "두 이미지를 비교 검증하세요. 첫 번째는 Figma 원본, 두 번째는 개발된 앱입니다.
 
-   다음 JSON 형식으로 수정이 필요한 항목을 구체적으로 알려주세요:
+   검증 항목:
+   1. 이미지 검증: 마스코트, 아이콘, 일러스트가 동일하게 들어갔는지
+   2. 레이아웃 검증: 요소들의 위치가 Figma와 동일한지 (상/하/좌/우 위치)
+   3. 크기 검증: 요소들의 크기 비율이 맞는지
+
+   JSON 형식으로 응답:
    {
      \"matchPercentage\": 85,
-     \"fixes\": [
-       {
-         \"element\": \"Header 텍스트\",
-         \"issue\": \"폰트 크기가 작음\",
-         \"currentValue\": \"fontSize: 16\",
-         \"targetValue\": \"fontSize: 20\",
-         \"file\": \"src/screens/HomePage.tsx\",
-         \"lineHint\": \"styles.headerText\"
-       }
+     \"imageIssues\": [
+       {\"element\": \"마스코트\", \"issue\": \"이미지가 없거나 다름\", \"expected\": \"사과모자 캐릭터\"}
+     ],
+     \"layoutIssues\": [
+       {\"element\": \"코인 아이콘\", \"issue\": \"위치가 다름\", \"expected\": \"중앙 정렬\", \"actual\": \"왼쪽 정렬\"}
+     ],
+     \"sizeIssues\": [
+       {\"element\": \"체크 아이콘\", \"issue\": \"크기가 작음\", \"expected\": \"24px\", \"actual\": \"16px\"}
      ]
    }"
 ```
 
-**Gemini 에러 처리 (절대 멈추지 않음):**
-- API 키 오류 → 3회 재시도 후 비교 건너뛰고 진행
+**Gemini 에러 처리:**
+- API 키 오류 → Step 0으로 돌아가서 환경변수 다시 로드 후 재시도
 - 이미지 인식 실패 → 이미지 재캡처 후 재시도
 - 네트워크 오류 → 5초 대기 후 재시도 (최대 3회)
-- 모든 재시도 실패 → 로그에 기록하고 다음 단계로 진행
 
 #### Step 8-4. Claude Code가 자동 수정
 
-Gemini 분석 결과의 `fixes` 배열을 순회하며:
+Gemini 검증 결과에 따라:
 
-1. `file` 경로의 파일을 Read
-2. `lineHint`로 해당 위치 찾기
-3. `currentValue` → `targetValue`로 Edit
-4. 수정 로그 출력:
-   ```
-   [수정 1/3] src/screens/HomePage.tsx
-     - Header 텍스트: fontSize 16 → 20
-   ```
+**이미지 이슈 (imageIssues):**
+- 이미지가 없거나 다름 → Figma API로 해당 이미지 다시 다운로드
+- 이미지 경로 오류 → 코드에서 import 경로 수정
+
+**레이아웃 이슈 (layoutIssues):**
+- 위치가 다름 → 정렬 속성 수정 (justifyContent, alignItems 등)
+- 마진/패딩 수정 → scaleWidth/scaleHeight 값 조정
+
+**크기 이슈 (sizeIssues):**
+- 크기가 다름 → width/height 값 수정
+
+수정 로그 출력:
+```
+[수정 1/3] 마스코트 이미지 재다운로드
+[수정 2/3] 코인 아이콘: alignItems: 'flex-start' → 'center'
+[수정 3/3] 체크 아이콘: width: 16 → 24
+```
 
 #### Step 8-5. 반복 판단
 
