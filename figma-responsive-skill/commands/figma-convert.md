@@ -8,45 +8,77 @@ Figma MCP를 활용하여 디자인을 반응형 코드로 자동 변환합니�
 
 ---
 
-## 🚨 절대 금지 사항 (MUST NOT) 🚨
+## 🚨🚨🚨 절대 금지 사항 - 위반 시 작업 실패 🚨🚨🚨
 
-### 1. 이미지/아이콘 직접 생성 금지
-- **절대로 SVG나 이미지를 코드로 직접 작성하지 마라**
-- **반드시 Figma API로 다운로드해라**
-- 마스코트, 캐릭터, 아이콘 등 모든 그래픽은 Figma에서 export
+### 1. 🔴🔴🔴 이미지/아이콘 직접 생성 절대 금지 🔴🔴🔴
+```
+❌ 절대 금지: SVG 코드를 직접 작성하는 것 (path d="..." 등)
+❌ 절대 금지: 아이콘을 코드로 그리는 것 (Circle, Rect 등 조합)
+❌ 절대 금지: 임의의 placeholder 이미지 사용
+❌ 절대 금지: 다른 페이지/다른 노드의 이미지 사용
+❌ 절대 금지: 비슷한 이미지로 대체하는 것
 
-### 2. Gemini 검증 건너뛰기 금지
-- **"API 키가 없다"는 핑계로 건너뛰지 마라**
-- **Step 0에서 .env 로드 안 했으면 다시 해라**
-- Gemini 검증은 필수 단계다
+✅ 무조건 필수: Figma REST API로 해당 노드 ID의 이미지를 다운로드!
+✅ 무조건 필수: curl로 실제 이미지 파일(.svg, .png)을 저장!
+✅ 무조건 필수: 저장된 파일을 import해서 사용!
+```
+
+**이미지 다운로드 과정 (반드시 따라야 함):**
+1. Figma 노드에서 이미지/아이콘 노드 ID 수집
+2. `curl -H "X-Figma-Token: $TOKEN" "https://api.figma.com/v1/images/{fileKey}?ids={nodeId}&format=svg"`
+3. 응답에서 이미지 URL 추출
+4. `curl -o assets/icons/xxx.svg "{이미지URL}"` 로 다운로드
+5. 코드에서 `import Icon from '../assets/icons/xxx.svg'` 사용
+
+### 2. Gemini 검증 건너뛰기 절대 금지
+```
+❌ 금지: "API 키가 없다"며 건너뛰는 것
+❌ 금지: "설정되지 않았다"며 건너뛰는 것
+✅ 필수: Step 0에서 .env 로드 확인 후 진행
+✅ 필수: 환경변수 없으면 Step 0 다시 실행
+```
+
+### 3. 서브에이전트 환경변수 전달 필수
+```
+❌ 금지: Task에 환경변수 없이 실행하는 것
+✅ 필수: prompt에 FIGMA_API_TOKEN, GEMINI_API_KEY 값을 직접 포함
+✅ 필수: "환경변수: FIGMA_API_TOKEN=xxx, GEMINI_API_KEY=yyy" 형태로 전달
+```
 
 ---
 
 ## Steps to follow:
 
-### 0. 환경 변수 로드 (필수 - 가장 먼저 실행!)
+### 0. 환경 변수 로드 및 저장 (필수 - 가장 먼저 실행!)
 
 **⚠️ 이 단계를 건너뛰면 Gemini 비교와 이미지 다운로드가 작동하지 않습니다!**
 
-Bash 도구로 프로젝트 루트의 `.env` 파일을 로드하세요:
+**⚠️ 반드시 .env 파일을 직접 Read 도구로 읽어서 값을 추출하세요!**
 
-```bash
-# .env 파일 로드
-if [ -f ".env" ]; then
-  set -a && source .env && set +a
-  echo "✅ Loaded .env"
-fi
-
-# 확인 (둘 다 출력되어야 함!)
-echo "GEMINI_API_KEY: ${GEMINI_API_KEY:+설정됨}"
-echo "FIGMA_API_TOKEN: ${FIGMA_API_TOKEN:+설정됨}"
+**Step 0-1. .env 파일 읽기 (Read 도구 사용):**
+```
+Read 도구로 프로젝트 루트의 .env 파일 읽기
 ```
 
-**환경변수가 없으면** 프로젝트 루트에 `.env` 파일 생성:
+**Step 0-2. 값 추출 및 저장:**
+.env 파일 내용에서 다음 값들을 추출하여 **메모리에 저장**:
+- `FIGMA_API_TOKEN` 값 → 이후 Step 6, 8에서 사용
+- `GEMINI_API_KEY` 값 → 이후 Step 6, 8에서 사용
+
+**Step 0-3. 확인 출력:**
+```
+✅ 환경변수 로드 완료
+- FIGMA_API_TOKEN: figd_xxxx... (설정됨)
+- GEMINI_API_KEY: AIza... (설정됨)
+```
+
+**환경변수가 없으면** 사용자에게 `.env` 파일 생성 요청:
 ```
 GEMINI_API_KEY="your-gemini-api-key"
 FIGMA_API_TOKEN="your-figma-token"
 ```
+
+**중요: 이 값들을 Step 6 서브에이전트와 Step 8 Gemini 검증에서 직접 사용합니다!**
 
 ### 1. 버전 선택 및 px 범위 설정
 
@@ -202,82 +234,105 @@ if (deps["react-native"] && !deps["expo"]) {
 **Web / Next.js의 경우:**
 `references/responsive-utils-web.md` 참조하여 `src/utils/responsive.ts` 생성
 
-### 6. 페이지별 병렬 변환 (멀티 에이전트)
+### 6. 페이지 변환 (멀티 에이전트 병렬 처리)
 
-각 Figma 링크에 대해 Task 도구를 사용하여 서브 에이전트를 **병렬로** 실행하세요:
+**⚠️ 서브에이전트에 환경변수 반드시 전달!**
 
+각 Figma 링크에 대해 Task 도구로 서브에이전트 병렬 실행:
+
+**서브에이전트 프롬프트 필수 포함 사항:**
 ```
-각 Figma 링크마다 Task 도구를 병렬로 호출:
+[환경변수]
+FIGMA_API_TOKEN={Step 0에서 로드한 값}
+GEMINI_API_KEY={Step 0에서 로드한 값}
 
-Task 1:
-- prompt: "Figma 페이지 변환: [링크1]
-  - Figma MCP로 노드 데이터 가져오기
-  - 컴포넌트 코드 생성 (반응형 유틸 적용)
-  - SVG 아이콘 추출
-  - 결과 반환"
-- subagent_type: "general-purpose"
+[작업]
+Figma URL: {url}
+File Key: {fileKey}
+Node ID: {nodeId}
+플랫폼: {platform}
+버전 설정: {versions}
 
-Task 2:
-- prompt: "Figma 페이지 변환: [링크2] ..."
-- subagent_type: "general-purpose"
-
-(모든 링크에 대해 병렬 실행)
+위 환경변수를 사용하여 다음 작업을 수행하세요:
+1. Figma MCP로 노드 데이터 가져오기
+2. iOS 시스템 UI 제거
+3. 컴포넌트 코드 생성
+4. 이미지/아이콘 다운로드 (FIGMA_API_TOKEN 사용)
 ```
 
-**서브 에이전트가 수행할 작업:**
+각 서브에이전트가 수행할 작업:
 
-1. Figma MCP 호출하여 노드 데이터 가져오기:
-   - `mcp__figma__get_file` 또는 관련 MCP 도구 사용
+#### Step 6-1. Figma MCP로 노드 데이터 가져오기
+- `mcp__figma__get_file` 또는 관련 MCP 도구 사용
 
-2. **iOS 시스템 UI 요소 자동 제거**:
-   - `references/figma-mapping.md`의 "iOS 시스템 UI 요소 제거" 섹션 참조
-   - 상단 상태바 (Status Bar) 감지 및 제거:
-     - 키워드: `status bar`, `battery`, `signal`, `time`, `notch`, `dynamic island`
-     - 위치: y < 60, 높이 20~59px
-   - 하단 홈 인디케이터 (Home Indicator) 감지 및 제거:
-     - 키워드: `home indicator`, `home bar`, `bottom indicator`
-     - 위치: 화면 하단 40px 이내
-   - 제거된 요소 로그 출력:
-     ```
-     [iOS System UI] 제거됨: "Status Bar" (44px, 상단)
-     [iOS System UI] 제거됨: "Home Indicator" (34px, 하단)
-     ```
-   - React Native: `SafeAreaView`로 자동 래핑
+#### Step 6-2. iOS 시스템 UI 요소 자동 제거
+- `references/figma-mapping.md`의 "iOS 시스템 UI 요소 제거" 섹션 참조
+- 상태바, 홈 인디케이터 감지 및 제거
+- React Native: `SafeAreaView`로 자동 래핑
 
-3. 노드 분석 및 컴포넌트 생성:
-   - `references/figma-mapping.md` 참조하여 Figma 요소 → React 컴포넌트 변환
-   - 반응형 유틸리티 적용 (scaleWidth, scaleFont, scaleSpacing 등)
+#### Step 6-3. 노드 분석 및 컴포넌트 생성
+- `references/figma-mapping.md` 참조하여 Figma 요소 → React 컴포넌트 변환
+- 반응형 유틸리티 적용
 
-4. **이미지/아이콘은 반드시 Figma에서 다운로드 (절대 직접 생성 금지!)**:
+#### Step 6-4. 🔴🔴🔴 이미지/아이콘 다운로드 (무조건 다운로드! 절대 코드로 그리지 마!) 🔴🔴🔴
 
-   **⚠️ 중요: 이미지/아이콘을 절대로 직접 코드로 작성하지 마세요!**
-   **⚠️ 반드시 Figma API를 통해 실제 이미지를 다운로드해야 합니다!**
+   **🚨🚨🚨 경고: 이미지를 코드로 그리면 작업 실패입니다! 🚨🚨🚨**
 
-   **Step 4-1. Figma에서 이미지 노드 ID 수집:**
+   **절대 하지 마:**
+   - `<svg><path d="M10 10..."/></svg>` ← 이런 식으로 SVG 코드 작성 금지!
+   - `<Circle cx={} cy={} r={} />` ← 이런 식으로 도형 조합 금지!
+   - `require('./placeholder.png')` ← 임의 이미지 사용 금지!
+
+   **무조건 해야 하는 것:**
+   - Figma API 호출 → 이미지 URL 받기 → curl로 다운로드 → 저장된 파일 import
+
+   **Step 6-4-1. Figma에서 이미지 노드 ID 수집:**
    - VECTOR, IMAGE, FRAME(아이콘/이미지 포함) 노드의 ID 수집
    - 마스코트, 캐릭터, 일러스트, 아이콘 등 모든 그래픽 요소 포함
+   - **모든 이미지/아이콘 노드를 빠짐없이 수집!**
 
-   **Step 4-2. Figma API로 이미지 URL 요청:**
+   **Step 6-4-2. Figma API로 이미지 URL 요청:**
    ```bash
-   # 여러 노드를 한 번에 요청 (쉼표로 구분)
+   # 프롬프트에서 전달받은 FIGMA_API_TOKEN 값을 직접 사용!
+   TOKEN="전달받은_FIGMA_API_TOKEN_값"
+   FILE_KEY="파일키"
    NODE_IDS="1:234,5:678,9:012"
 
    # SVG export (아이콘/벡터용)
-   curl -s -H "X-Figma-Token: $FIGMA_API_TOKEN" \
-     "https://api.figma.com/v1/images/${FILE_KEY}?ids=${NODE_IDS}&format=svg" \
-     | jq -r '.images'
+   RESPONSE=$(curl -s -H "X-Figma-Token: $TOKEN" \
+     "https://api.figma.com/v1/images/${FILE_KEY}?ids=${NODE_IDS}&format=svg")
+
+   echo "$RESPONSE"  # 응답 확인
 
    # PNG export (마스코트/이미지용, 2배 해상도)
-   curl -s -H "X-Figma-Token: $FIGMA_API_TOKEN" \
-     "https://api.figma.com/v1/images/${FILE_KEY}?ids=${NODE_IDS}&format=png&scale=2" \
-     | jq -r '.images'
+   RESPONSE=$(curl -s -H "X-Figma-Token: $TOKEN" \
+     "https://api.figma.com/v1/images/${FILE_KEY}?ids=${NODE_IDS}&format=png&scale=2")
+
+   echo "$RESPONSE"  # 응답 확인
    ```
 
-   **Step 4-3. 이미지 다운로드 및 저장:**
+   **Step 6-4-3. 실제 이미지 파일 다운로드:**
    ```bash
-   # 응답에서 받은 URL로 실제 이미지 다운로드
+   # 응답에서 받은 URL로 실제 이미지 다운로드 (무조건!)
+   mkdir -p assets/images assets/icons
+
+   # 예시: 응답에서 받은 URL 사용
    curl -s -o "assets/images/mascot.png" "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/..."
    curl -s -o "assets/icons/check.svg" "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/..."
+
+   # 다운로드 확인
+   ls -la assets/images/
+   ls -la assets/icons/
+   ```
+
+   **Step 6-4-4. 다운로드한 파일 사용:**
+   ```typescript
+   // ✅ 올바른 사용법: 다운로드한 파일 import
+   import MascotImage from '../assets/images/mascot.png';
+   import CheckIcon from '../assets/icons/check.svg';
+
+   // ❌ 잘못된 사용법: 코드로 직접 그리기
+   // const CheckIcon = () => <Svg><Path d="..."/></Svg>  // 절대 금지!
    ```
 
    **저장 위치:**
@@ -286,7 +341,7 @@ Task 2:
    - 100% 동일 파일만 중복 제외, 나머지는 모두 저장
    - `assets/icons/index.ts` 및 `assets/images/index.ts` 생성
 
-5. 결과 반환:
+**Step 6-5. 서브에이전트 결과 반환:**
    - 생성된 파일 경로들
    - 추출된 아이콘 목록
    - 추출된 이미지/마스코트 목록
@@ -295,7 +350,7 @@ Task 2:
 
 ### 7. 결과 취합
 
-모든 서브 에이전트 완료 후:
+모든 서브에이전트 완료 후:
 
 1. 생성된 모든 컴포넌트 파일 목록 정리
 2. 중복 아이콘 제거 및 통합
@@ -304,7 +359,8 @@ Task 2:
 ### 8. Gemini 검증 (필수!) - 이미지 & 레이아웃 확인
 
 **⚠️ 이 단계는 반드시 실행해야 합니다!**
-**⚠️ GEMINI_API_KEY가 없으면 Step 0으로 돌아가서 환경변수 다시 로드!**
+**⚠️ Step 0에서 로드한 GEMINI_API_KEY를 사용하세요!**
+**⚠️ 환경변수가 없다고 건너뛰지 말고, Step 0에서 로드한 값을 직접 사용!**
 
 **Gemini의 역할 (UI 생성 X, 검증만 O):**
 - Claude Code가 UI 코드는 이미 잘 생성함
