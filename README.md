@@ -6,9 +6,7 @@ Lightsoft 개발팀을 위한 Claude Code 플러그인/스킬 모음.
 
 | 플러그인 | 커맨드 | 설명 |
 |---------|--------|------|
-| **greeter** | `/hellocrew` | 팀원 인사 메시지 |
 | **voicemanager** | *(hook)* | 작업 완료 시 TTS 알림 (`say` 명령) |
-| **feature-tracker** | `/feature-start`, `/feature-end` | Notion 연동 피처 개발 트래킹 |
 | **project-initializer** | `/init` | 기술 스택별 프로젝트 초기 세팅 |
 | **project-cleaner** | `/cleanup` | 배포 전 백업/임시 파일 및 미사용 패키지 정리 |
 | **test-generator** | `/test` | 테스트 코드 자동 생성 및 실행, 리포트 출력 |
@@ -33,9 +31,7 @@ claude plugins add github:lightsoft-dev/claude-plugin-for-dev
 .
 ├── .claude-plugin/
 │   └── marketplace.json    # 플러그인 레지스트리
-├── greeter/                # 인사 플러그인
 ├── voicemanager/           # TTS 알림 (hooks)
-├── feature-tracker/        # Notion 피처 트래커
 ├── project-initializer/    # 프로젝트 초기화
 ├── project-cleaner/        # 프로젝트 정리
 ├── test-generator/         # 테스트 자동 생성

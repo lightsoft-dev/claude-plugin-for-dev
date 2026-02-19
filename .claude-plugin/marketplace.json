@@ -5,19 +5,9 @@
   },
   "plugins": [
     {
-      "name": "greeter",
-      "source": "./greeter",
-      "description": "greeter for lightsoft"
-    },
-    {
       "name": "voicemanager",
       "source": "./voicemanager",
       "description": "notify user when complete"
-    },
-    {
-      "name": "feature-tracker",
-      "source": "./feature-tracker",
-      "description": "track feature development with Notion"
     },
     {
       "name": "project-initializer",

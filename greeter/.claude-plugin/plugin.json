@@ -1,8 +1,0 @@
-{
-  "name": "greeter",
-  "description": "greet user in lightsoft",
-  "version": "1.0.0",
-  "author": {
-    "name": "Lightsoft"
-  }
-}
