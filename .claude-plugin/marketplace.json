@@ -38,6 +38,16 @@
       "name": "security-checker",
       "source": "./security-checker",
       "description": "comprehensive security scanning for secrets, vulnerabilities, and code issues"
+    },
+    {
+      "name": "figma-responsive-skill",
+      "source": "./figma-responsive-skill",
+      "description": "Figma design to multi-device responsive code conversion with Gemini AI verification"
+    },
+    {
+      "name": "auto-qa",
+      "source": "./auto-qa",
+      "description": "automated black-box QA testing with Linear issue tracking and HTML report"
     }
   ]
 }
