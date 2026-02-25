@@ -11,6 +11,7 @@ Lightsoft 개발팀을 위한 Claude Code 플러그인/스킬 모음.
 | **project-cleaner** | `/cleanup` | 배포 전 백업/임시 파일 및 미사용 패키지 정리 |
 | **test-generator** | `/test` | 테스트 코드 자동 생성 및 실행, 리포트 출력 |
 | **security-checker** | `/security-check` | 시크릿 노출, 의존성 취약점, 코드 보안 이슈 검사 |
+| **e2e-playwright** | `/e2e`, `/e2e-fix` | Playwright + MUI E2E 테스트 작성/실행/디버깅 워크플로우 (rules 포함) |
 
 ## Skills
 
@@ -37,5 +38,6 @@ claude plugins add github:lightsoft-dev/claude-plugin-for-dev
 ├── test-generator/         # 테스트 자동 생성
 ├── security-checker/       # 보안 검사
 ├── figma-responsive-skill/ # Figma → 반응형 코드
-└── auto-qa/                # 자동 QA 테스팅
+├── auto-qa/                # 자동 QA 테스팅
+└── e2e-playwright/         # Playwright + MUI E2E 테스트
 ```

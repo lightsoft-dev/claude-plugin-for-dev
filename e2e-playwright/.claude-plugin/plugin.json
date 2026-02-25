@@ -1,0 +1,8 @@
+{
+  "name": "e2e-playwright",
+  "description": "Playwright + MUI E2E testing rules, commands, and debugging workflows",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  }
+}

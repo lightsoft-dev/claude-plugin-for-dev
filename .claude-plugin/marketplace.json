@@ -38,6 +38,11 @@
       "name": "auto-qa",
       "source": "./auto-qa",
       "description": "automated black-box QA testing with Linear issue tracking and HTML report"
+    },
+    {
+      "name": "e2e-playwright",
+      "source": "./e2e-playwright",
+      "description": "Playwright + MUI E2E testing rules, commands, and debugging workflows"
     }
   ]
 }
