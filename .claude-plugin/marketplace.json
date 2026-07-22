@@ -43,6 +43,11 @@
       "name": "e2e-playwright",
       "source": "./e2e-playwright",
       "description": "Playwright + MUI E2E testing rules, commands, and debugging workflows"
+    },
+    {
+      "name": "db-backup",
+      "source": "./db-backup",
+      "description": "daily DB backup workflow (GitHub Actions -> rclone -> team Google Drive), adapts dump/restore to the project's DB type"
     }
   ]
 }
