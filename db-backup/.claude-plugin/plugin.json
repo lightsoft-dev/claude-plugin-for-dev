@@ -1,0 +1,9 @@
+{
+  "name": "db-backup",
+  "description": "GitHub Actions로 매일 DB를 덤프해 팀 Google Drive(rclone)로 업로드하는 백업 워크플로를 프로젝트에 자동 셋업. DB 타입(Postgres/MySQL 등)을 코드에서 감지해 맞는 덤프/복원 명령을 생성. 전송 계층은 rclone remote 'gdrive'로 고정되어 추후 NAS/S3 이관 시 워크플로 수정 불필요.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Lightsoft"
+  },
+  "keywords": ["backup", "database", "postgres", "mysql", "rclone", "google-drive", "github-actions", "pg_dump", "cron"]
+}
