@@ -43,6 +43,11 @@
       "name": "e2e-playwright",
       "source": "./e2e-playwright",
       "description": "Playwright + MUI E2E testing rules, commands, and debugging workflows"
+    },
+    {
+      "name": "screen-doc-notion",
+      "source": "./screen-doc-notion",
+      "description": "analyze web app screens and publish an illustrated usage guide to Notion (screenshots, permission differences, dropdown value sources, user scenarios)"
     }
   ]
 }

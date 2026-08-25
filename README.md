@@ -19,6 +19,7 @@ Lightsoft 개발팀을 위한 Claude Code 플러그인/스킬 모음.
 |------|--------|------|
 | **figma-responsive-skill** | `/figma-convert` | Figma 디자인 → 멀티 디바이스 반응형 코드 변환 (Gemini AI 비교 검증) |
 | **auto-qa** | `/auto-qa` | 브라우저 자동화 기반 블랙박스 QA + Linear 이슈 생성 + 버그 수정 + HTML 리포트 |
+| **screen-doc-notion** | `/screen-doc-notion` | 웹 화면 분석 → 스크린샷·권한별 차이·드롭다운 값 출처·사용자 시나리오 포함 안내 문서를 Notion에 작성 |
 
 ## 설치
 
@@ -39,5 +40,6 @@ claude plugins add github:lightsoft-dev/claude-plugin-for-dev
 ├── security-checker/       # 보안 검사
 ├── figma-responsive-skill/ # Figma → 반응형 코드
 ├── auto-qa/                # 자동 QA 테스팅
-└── e2e-playwright/         # Playwright + MUI E2E 테스트
+├── e2e-playwright/         # Playwright + MUI E2E 테스트
+└── screen-doc-notion/      # 화면 분석 → Notion 안내 문서
 ```
